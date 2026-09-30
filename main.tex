@@ -1,0 +1,301 @@
+\documentclass[11pt, reqno]{amsart}
+
+%%% Font Setup
+% \usepackage{ETbb}
+\usepackage{libertinus}           % text + math, type1 so pdflatex-safe
+\usepackage[T1]{fontenc}
+
+%%% Packages
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{xcolor}
+\usepackage{bm}
+\usepackage[colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{flafter}
+
+\usepackage[framemethod=TikZ]{mdframed}
+\mdfdefinestyle{lecturebox}{
+  backgroundcolor=black!5,      % light gray fill
+  linecolor=black!12,           % faint border; set linewidth=0pt to drop it
+  linewidth=0.6pt,
+  roundcorner=3pt,
+  leftmargin=1em, rightmargin=1em,        % outer indent from text block
+  innerleftmargin=1.4em, innerrightmargin=1.4em,
+  innertopmargin=1em, innerbottommargin=1em,
+}
+
+%%% Page Geometry
+\usepackage{geometry}
+\geometry{margin=1.2in, top=1in, bottom=1in}
+
+%%% Section Headings in Small Caps
+\makeatletter
+\def\section{\@startsection{section}{1}%
+  \z@{.7\linespacing\@plus\linespacing}{.5\linespacing}%
+  {\normalfont\scshape\centering}}
+\makeatother
+
+%%% Title in Small Caps
+\makeatletter
+\def\@settitle{\begin{center}%
+  \baselineskip14\p@\relax
+  \bfseries\scshape\uppercasenonmath\@title
+  \@title
+  \end{center}%
+}
+\makeatother
+
+%%% Theorem Environments
+\newtheoremstyle{notestyle}
+  {6pt}{6pt}{\itshape}{}{\bfseries}{.}{.5em}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \normalfont(#3)}}
+
+\theoremstyle{notestyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\newtheoremstyle{defstyle}
+  {6pt}{6pt}{\normalfont}{}{\bfseries}{.}{.5em}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ \normalfont(#3)}}
+
+\theoremstyle{defstyle}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\T}{^\top}
+\newcommand{\mc}[1]{\mathcal{#1}}
+
+%%% Additional notation
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\Hphys}{\mathcal{H}_{\mathrm{phys}}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Id}{\mathrm{Id}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\inner}[2]{\left\langle #1,#2 \right\rangle}
+\newcommand{\MPS}{\mathcal{M}_{\chi}}
+\newcommand{\Q}{\mathcal{Q}}
+\newcommand{\FS}{\mathrm{FS}}
+\newcommand{\Heff}{H_{\mathrm{eff}}}
+\newcommand{\Neff}{N_{\mathrm{eff}}}
+
+%%% Metadata
+\title{Correlated Cubic Features}
+\author{authors}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\noindent\textit{%
+We need to extend Nisch's two-feature calculation to $k$ correlated target features at Bayesian equilibrium. In particular, when does one committee serve all the features, when does it split, and what populations of neurons minimize the posterior cost after splitting?}
+
+% \tableofcontents
+
+% \newpage
+
+\section{Setup}
+
+Let $N$ be the input dimension, $K$ be the number of hidden neurons, and $P$ be the number of training examples.
+
+Take
+\begin{equation}
+    K = \frac{N^2}{\Delta},\quad P = \chi K,
+\end{equation}
+with $\Delta, \chi > 0$ fixed. Our sample ratio remains
+\begin{equation}
+    \alpha = \frac PN = \frac{\chi N}{\Delta},
+\end{equation}
+growing with $N$. The source's sample ratio is $\chi = P/K$, not our $\alpha$.
+
+\section{Teacher and Training Data}
+Draw independent $\mathbf x^\mu \sim \mathcal N(0, I_N)$. Choose unit teacher directions satisfying
+\begin{equation}
+    \mathbf e_\ell^\top \mathbf e_t = G_{\ell t} = (1 - \omega)d_{\ell t} + \omega,\quad 0 \leq \omega \leq 1.
+\end{equation}
+Initially use noiseless labels
+\begin{equation}
+    y^\mu = f_*(\mathbf x^\mu),\quad f_*(\mathbf x) = B\sum_{\ell = 1}^k \psi_3(\mathbf e_\ell^\top \mathbf x),\quad \psi_3(z) = \frac{H_3(z)}{\sqrt 6} = \frac{z^3 - 3z}{\sqrt{6}}.
+\end{equation}
+Where $H_3$ is the third Hermite polynomial. The normalization makes each feature have unit variance. For Gaussian inputs,
+\begin{equation}
+    \mathbb E_{\mathbf x} [\psi_3(\mathbf e_\ell^\top \mathbf x)\psi_3(\mathbf e_t^\top\mathbf x)] = G_{\ell t}^3.
+\end{equation}
+Thus $\omega$ is a direction overlap. The corresponding cubic-feature correlation is $\omega^3$.
+\section{Student network and equilibrium ensemble}
+Use the pure cubic student
+\begin{equation}
+    f_\theta(\mathbf x) = \sum_{i=1}^K a_i \gamma_3 \psi_3\left( \frac{\mathbf w_i^\top \mathbf x}{\sqrt N}\right),\quad \gamma_3 > 0.
+\end{equation}
+For this calculation, the prior is uniform over hidden-weight spheres and over readouts satisfying:
+\begin{equation}
+    \|\mathbf w_i\|^2 = N,\quad |a_i| \leq \frac{A}{\sqrt K},\quad \sum_{i=1}^K a_i^2 = \tau^2,\quad 0 < \tau^2 < A^2.
+\end{equation}
+Here, $A, \tau, \gamma_3$ are fixed. The factor $K^{-1/2}$ in Nisch's network has been absorbed into our readouts $a_i$. For fixed dataset $\mathcal D$, define
+\begin{equation}
+    E_{\mathcal D}(\theta) = \frac 12 \sum_{\mu=1}^P[y^\mu - f_\theta(\mathbf x^\mu)]^2,\quad p_\beta(\theta \mid \mathcal D) = \frac{p_0(\theta)e^{-\beta E_{\mathcal D}(\theta)}}{Z_\beta (\mathcal D)}.
+\end{equation}
+This is an equilibrium problem. It doesn't specify how quickly SGD or a posterior sampler reaches the predicted populations. We write $\langle \cdot \rangle_{\mathcal D}$ for posterior averages and $\mathbb E_{\mathbf x}$ for averages over fresh Gaussian inputs.
+
+Define $\mathbf w_\ell^* = \sqrt N \mathbf e_\ell$. The signed teacher overlaps are
+\begin{equation}
+    m_{i\ell} = \frac{\mathbf w_i^\top \mathbf w_\ell^*}{N},\quad q_i = \frac{\|\mathbf w_i\|^2}{N} = 1.
+\end{equation}
+\section{Reduced description in terms of committees}
+Let $\mathcal V = \mathrm{span}\{\mathbf e_1, \ldots, \mathbf e_k\}$. A committee consists of neurons sharing a projection into $\mathcal V$:
+\begin{equation}
+    \frac{\mathbf w_i}{\sqrt N} = r_c \mathbf u_c + \sqrt{1 - r_c^2 }\bm \xi_i,\quad \mathbf u_c \in \mathcal V,\quad \|\mathbf u_c\| = \|\bm \xi_i\| = 1,\quad \bm\xi_i \perp \mathcal V.
+\end{equation}
+$\mathcal V$ is a small subspace inside the input space such that the teacher depends only on the projections of $\mathbf x$ into $\mathcal V$. We can therefore split a neuron's normalized weight into the above decomposition. The first term is the projection into the teacher subspace, the second term is the transverse component. Here, $\mathbf u_c$ tells us which direction the group represents, while $r_c$ tells us how \textit{strongly neurons concentrates on that directions.} A committee shares the first component; its neurons can differ in their transverse components. The teacher overlaps are $m_{i\ell} = r_c \mathbf u_c^\top \mathbf e_\ell$.
+
+The useful identity here is
+\begin{equation}
+    \mathbb E_Z \left[ \psi_3 (rz + \sqrt{1-r^2}Z)\right] = r^3 \psi_3(z).
+\end{equation}
+So part of the neuron's response that survives averaging over transverse inputs is a cubic feature along $\mathbf u_c$, with strength proportional to $r_c^3$. 
+
+Under the spherical prior, most weight distributions are almost orthogonal to any fixed low-dim subspace. A finite projection $r$ is rare because comparitively few directions have that projection:
+\begin{equation}
+    \mathrm{Pr}(r) \asymp e^{-N J(r)},\quad J(r) = -\frac 12\log(1 - r^2).
+\end{equation}
+This is an \textit{entropy cost}. Every allowed direction is equally likely, but there are vastly more directions with small project than large.
+
+Stronger alignment gives more cubic output per neuron (prop to $r^3$), but costs more prior probability. 
+
+Nisch' leading-order calculation minimizes the alignment cost per unit cubic output:
+\begin{equation}
+    \frac{\text{alignment cost}}{\text{cubic output}} \propto \frac{J(r)}{r^3},\quad r_* = \argmin_{0 < r < 1} \frac{J(r)}{r^3} \simeq 0.73047.
+\end{equation}
+So weak alignment produces too little signal; alignment approaching one becomes too statistically costly. 
+
+After optimizing readout magnitudes and projection lengths, represent the retained cubic signal as
+\begin{equation}
+    f_{\mathcal C}(\mathbf x) = \sum_{c=1}^L b_c \psi_3(\mathbf u_c^\top \mathbf x),\quad b_c \geq 0.
+\end{equation}
+\textit{The number $L$ of committees is unknown.} Signs can also be absorbed into $\mathbf u_c$, since $\psi_3$ is odd.
+
+Under the background approximation, the effective population cost is
+\begin{equation}
+    F(\mathcal C) = \lambda \sum_c b_c + \frac 12 \mathbb E_{\mathbf x}\left[ f_*(\mathbf x) - f_{\mathcal C}(\mathbf x)\right]^2
+\end{equation}
+with 
+\begin{equation}
+    \lambda = \frac{\sqrt{\Delta}J(r_*)}{g_{\text{eff}}\gamma_3 A r_*^3}.
+\end{equation}
+
+\section{Three Correlated Features}
+
+Similarly to the two correlated features notes, let
+\begin{align*}
+f_* (x) = \beta \sum_{a=1}^3 \psi_3(e_a^\top x),
+\qquad e_a^\top e_b = \omega \quad (a \neq b)
+\end{align*}
+Thus, we have three features, with mutual inner products all of $\omega$.
+This case will be easier than the four-feature asymmetric case; not only do we have one fewer feature, there is also an $S_3$ symmetry.
+
+We can first rederive the free energy expression here, in a very similar way to the two feature case.
+If $w$ is one hidden weight, we denote by $p$ its projection into $S = e_1 \times e_2 \times e_3$ space, and $u$ the unit direction of that projection:
+\begin{align*}
+w = pu + \sqrt{1-p^2} w_\perp
+\end{align*}
+As in the two-feature calculation,
+\begin{align*}
+\mathbb{E}_{x_\perp} \psi_3(w^\top x)
+= p^3 \psi_3 (u^\top x).
+\end{align*}
+We again have that we need to minimize the alignment cost, which requires minimizing
+\begin{align*}
+\frac{J(p)}{p},
+\qquad J(p) = -\frac{1}{2} \log (1-p^2)
+\end{align*}
+This all results in the same preferred radius $p = r_3 \approx 0.73$, and the same optimal $\lambda$.
+Thus, these values do not depend on the number of features.
+
+The ``free energy" that ends up being minimized is written
+\begin{align*}
+F = \lambda \sum_{j} b_j + \frac{1}{2} \mathbb{E}_x [f_*(x) - f_C(x)]^2
+\qquad f_C(x) = \sum_j b_j \psi_3(u_j^\top x)
+\end{align*}
+as before.
+
+Now, we perform a similar centering step as in the two-feature case, this time around a central axis, in light of the $S_3$ symmetry.
+Define the normalized symmetric axis vector
+\begin{align*}
+e_0 = \frac{e_1 + e_2 + e_3}{\sqrt{3(1+2\omega)}}
+\end{align*}
+which lets us write any of the teacher vectors as
+\begin{align*}
+    e_a = c e_0 + s v_a,
+    \qquad c = \sqrt{\frac{1+2\omega}{3}},
+    \qquad s = \sqrt{\frac{2(1-\omega)}{3}}
+\end{align*}
+where the $v_a$ are three unit vectors in the plane perpendicular to $e_0$, each pointing towards $e_a$, which form an equilateral triangle in that plane.
+
+We can parametrize the projection of $w$, a committee representative, as
+\begin{align*}
+    w = pu + \sqrt{1-p^2}w_\perp,
+    \qquad u = t e_0 + \sqrt{1-t^2} v
+\end{align*}
+with $v$ lying in the $e_0$ perpendicular plane.
+
+Now, similarly to the two feature case, we look at the difference in free energy from adding a single committee with output $b \psi_3 (u^\top x)$ to a completely unaligned network with $f_C = 0$:
+\begin{align*}
+    F(b, u) - F(0)
+    &= b \left[\lambda - \mathbb{E}_x \{f_* \psi_3 (u^\top x)\} \right]
+    + \frac{b^2}{2} \mathbb{E}_x \psi_3 (u^\top x)^2 \\
+    &= b \left[ \lambda - \beta \{ (e_1^\top x)^3 + (e_2^\top x)^3 + (e_3^\top x)^3 \} 
+    \right] + \frac{b^2}{2}
+\end{align*}
+where we used Hermite orthogonality to evaluate the expectations.
+Then define
+\begin{align*}
+    H(t, \theta) = \sum_{a=1}^3 (e_a^\top u)^3
+\end{align*}
+where we have written on the left side the dependence of $H$ on $t$ and $\theta$, which we define as the angle between $v$ and $v_1$.
+After some algebraic magic happens, it can be shown that
+\begin{align}\label{eq:three-feature-H}
+    H(t, \theta)
+    &= 3c^3 t^3
+    + \frac{9}{2} cs^2 t (1-t^2)
+    + \frac{3}{4} s^3 (1-t^2)^{3/2} \cos (3\theta)
+\end{align}
+Recall that $e_a = c e_0 + s v_a$ and $u = t e_0 + \sqrt{1-t^2}v$.
+Schematically, then, each of these terms in $H$ comes from the different combinations of terms in $e_a$ and $u$.
+The first corresponds to three $e_0$ components, the second to one $e_0$ and two transverse components.
+It turns out the term from two $e_0$ and one transverse vanishes because $v_1 + v_2 + v_3 = 0$. 
+The last term is the pure transverse term.
+The $\cos 3\theta$ is the lowest angular harmonic that is compatible with the $S_3$ symmetry of the teacher vectors: we must have $H(t, \theta + 2\pi/3) = H(t, \theta)$.
+
+So, we can write the change in free energy as
+\begin{align*}
+    \Delta F
+    = b \left[\lambda - \beta H(u) \right] + \frac{b^2}{2}
+\end{align*}
+For $0 < b \ll 1$, adding the committee will be favored when maximizing $H(u)$, as in the two-feature case.
+Examining the formula \ref{eq:three-feature-H}, we see that $H$ is maximized for $\cos 3\theta = 1$, which gives three equivalent directions, corresponding to $e_1$, $e_2$, and $e_3$.
+
+Then we can check when the various solutions are favored.
+$t = 1$ corresponds to the direction of the committee being completely shared, giving $H_\text{sh} = 3c^3$.
+We can check when this solution is locally stable.
+Let $q = \sqrt{1-t^2} \ll 1$.
+Then,
+\begin{align*}
+    H
+    &= 3c^3 (1-q^2)^{3/2}
+    + \frac{9}{2} cs^2 (1-q^2)q^2
+    + \frac{3}{4} s^3 q^3 \cos (3\theta) \\
+    &= 3c^3 + \frac{9}{2} c(s^2 - c^2)q^2
+    + \frac{3}{4} s^3 q^3 \cos 3\theta + O(q^4)
+\end{align*}
+The $q^2$ term is negative (for recall we're trying to \emph{maximize} $H$), and this solution is stable, when $s^2 < c^2$, which is exactly when $\omega > 1/4$.
+
+\end{document}
