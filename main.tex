@@ -298,4 +298,149 @@ Then,
 \end{align*}
 The $q^2$ term is negative (for recall we're trying to \emph{maximize} $H$), and this solution is stable, when $s^2 < c^2$, which is exactly when $\omega > 1/4$.
 
+However, it turns out this is not necessarily the globally-stable point for $\omega > 1/4$.
+We also need to consider the asymmetric solutions.
+WLOG, let
+\begin{align*}
+(e_1^\top u, e_2^\top u, e_3^\top u)
+= (x, y, y), \qquad x > y
+\end{align*}
+Then we want to maximize $H(u) = x^3 + 2y^3$.
+To globally solve this constrained maximization problem, it helps to change coordinate systems.
+Let
+\begin{align}
+    u = \sum_b \alpha_b e_b
+\end{align}
+If $G_{ab} = e_a^T e_b$ is the Gram matrix, we can write the projection of $u$ onto each feature vector as
+\begin{align*}
+    r_a  = e_a^\top u
+    = \sum_b G_{ab} \alpha_b,
+    \qquad \text{or }
+    r &= G \alpha \\
+    \implies
+    \alpha &= G^{-1} r
+\end{align*}
+Thus, we can write the constraint that $u$ is a unit vector as
+\begin{align*}
+    |u|^2 = \alpha^\top G \alpha = r^\top G^{-1}  r = 1
+\end{align*}
+In this case with equally-correlated features,
+\begin{align*}
+    G
+    = \begin{pmatrix}
+        1 & \omega & \omega \\
+        \omega & 1 & \omega \\
+        \omega & \omega & 1
+    \end{pmatrix}
+    &= (1-\omega)I + \omega 1 1^\top \\
+    G^{-1}
+    &= \frac{1}{1-\omega} \left[I - \frac{\omega}{1 + 2\omega} 1 1^\top \right]
+\end{align*}
+We can now write the constrained maximization problem using a Lagrange mulitiplier $\mu$ as
+\begin{align*}
+    \mathcal{L} = \sum_a r_a^3 - \mu (r^\top G^{-1} r - 1)
+\end{align*}
+At the max, we have $\partial \mathcal{L} / \partial r_a = 0$, which gives
+\begin{align}\label{eq:H-stationarity-lagrange}
+    3r_a^2 = 2\mu (G^{-1} r)_a
+\end{align}
+We write the expression on the RHS as
+\begin{align*}
+    (G^{-1} r)_a
+    = \frac{1}{1-\omega} \left[ r_a - \frac{\omega}{1 + 2\omega} (x + 2y) \right]
+\end{align*}
+Explicitly, the first and the symmetric components are
+\begin{align*}
+    (G^{-1} r)_1
+    &= \frac{1}{1-\omega} \left[ x - \frac{\omega}{1 + 2\omega} (x + 2y) \right] \\
+    &= \frac{(1 + \omega)x - 2\omega y}{(1-\omega)(1 + 2\omega)} \\
+    (G^{-1}r)_{2,3}
+    &= \frac{1}{1-\omega} \left[ y - \frac{\omega}{1 + 2\omega} (x + 2y) \right] \\
+    &= \frac{y - \omega x}{(1-\omega)(1+2\omega)}
+\end{align*}
+Plugging these into equation \ref{eq:H-stationarity-lagrange}, we get the stationarity equations
+\begin{align*}
+    3x^2
+    &= 2\mu \frac{(1 + \omega)x - 2\omega y}{(1-\omega)(1 + 2\omega)} \\
+    3y^2
+    &= 2 \mu \frac{y - \omega x}{(1-\omega)(1+2\omega)}
+\end{align*}
+Dividing and letting $R = x/y$, we have
+\begin{align*}
+    R^2
+    &= \frac{(1+\omega)R - 2\omega}{1 - \omega R} \\
+    \implies
+    0 &= (R - 1) \left[\omega R^2 - (1 - \omega)R + 2\omega \right]
+\end{align*}
+$R=1$ is the $x = y$ symmetric case, but we're interested in the asymmetric one, so we can divide that out, giving the final stationarity equation
+\begin{align}\label{eq:stationarity}
+    0 &= \omega R^2 - (1-\omega)R + 2\omega \\
+    \implies
+    \omega &= \frac{R}{R^2 + R + 2}
+\end{align*}
+This equation will be satisfied exactly when the global maximum of $H$ is asymmetric.
+
+Recall that for the symmetric case, $H_\text{sym}^2 = 3^2c^6 = 1/3 \times (1+2\omega)^3$, so
+\begin{align*}
+    \left( \frac{H_\text{asym}}{H_\text{sym}} \right)^2
+    &= \frac{3y^6(R^3+2)^2}{(1+2\omega)^3}
+\end{align*}
+Then we need to replace $y$ and $\omega$ with $R$.
+We can write $r = y(R, 1, 1)$, which lets us rewrite the $|u|^2 = 1$ constraint as
+\begin{align*}
+    1 &= \frac{y^2}{1-\omega} \left[ R^2 + 2 - \frac{\omega}{1+2\omega} (R+2)^2 \right] \\
+    \implies y^2
+    &= \frac{(1-\omega)(1+2\omega)}{(1+\omega)R^2 - 4\omega R +2}
+\end{align*}
+We'll let the denominator $D = (1+\omega)R^2 - 4\omega R + 2$, so
+\begin{align*}
+    y^6
+    &= \frac{(1-\omega)^3 (1+2\omega))^3}{D^3} \\
+    \implies
+    \left( \frac{H_\text{asym}}{H_\text{sh}} \right)^2
+    &= \frac{3(1-\omega)^3 (R^3+2)^2}{D^3}
+\end{align*}
+Then using equation \ref{eq:stationarity},
+\begin{align*}
+    1-\omega
+    &= \frac{R^2+2}{R^2+R+2} \\
+    D
+    &= \frac{(R+2)(R^3+3)}{R^2+R+2}
+\end{align*}
+Plugging these into the above, we get
+\begin{align*}
+    \left( \frac{H_\text{asym}}{H_\text{sh}} \right)^2
+    &= \frac{3(R^2+2)^3}{(R+2)^3(R^3+2)}
+\end{align*}
+The crossover point in favorability here is when the numerator and denominator are equal, which we can find:
+\begin{align*}
+    0
+    &= 3(R^2+2)^2 - (R+2)^3(R^3+2)
+    = 2(R-1)^3 (R^3-4)
+\end{align*}
+So, they are equally favored when (trivially) $R=1$, and nontrivially when $R = 2^{2/3}$.
+Plugging this into equation \ref{eq:stationarity} gives
+\begin{align*}
+    \omega_c
+    &= \frac{2^{2/3}}{2^{4/3} + 2^{2/3} + 2}
+    = 2^{1/3} - 1
+    \approx 0.259921 > \frac{1}{4}
+\end{align*}
+How large can $\omega$ get and keep the asymmetric solution locally stable?
+Maximize equation \ref{eq:stationarity}:
+\begin{align*}
+    \frac{d\omega}{dR}
+    &= \frac{(R^2 + R + 2) - R(2R+2)}{(R^2+R+2)^2} \\
+    &= \frac{2-R^2}{(R^2+R+2)^2}
+\end{align*}
+So the max is at $R = 2^{1/2}$, and
+\begin{align*}
+    \omega_\text{spin}
+    &= \frac{\sqrt{2}}{4+\sqrt{2}}
+    \approx 0.261204
+\end{align*}
+So for correlations above $\omega_\text{spin}$, the shared feature is global free energy minimum, and the only local minimum. At $\omega_c = 2^{1/3}-1$, the asymmetric solution becomes a local minimum, but the shared feature is still global minimum.
+Then between $\omega_c$ and $\omega = 1/4$, the symmetric solution remains locally-stable, but the asymmetric solution is the global minimum.
+And below $\omega = 1/4$, the symmetric solution loses local stability, and the asymmetric solution is the only stable one.
+
 \end{document}

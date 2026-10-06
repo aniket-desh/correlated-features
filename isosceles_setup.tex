@@ -387,7 +387,7 @@ A candidate committee direction can similarly be written
 Here $t=\cos\vartheta$, where $\vartheta$ is the tilt away from the
 shared axis. The direction of $\mathbf v$ specifies the azimuth of
 that tilt. This angular coordinate $t$ is different from temperature
-$T$, projection length $r_c$, and norm $q_i$.
+$T$, projection length $r_c$, and norm $q_i$. \color{blue}\textbf{[TODO: make a note deriving the spherical harmonics decomposition?]}\color{black}
 
 \section{The isosceles perturbation}
 
@@ -534,5 +534,60 @@ directions, transition locations, and replacement populations are
 left for the calculation.
 
 % Continue here with the perturbative calculation.
+
+\section{Small Deformation}
+We hypothesize that the deformation biases representation toward the closer pair. More precisely, the three equivalent tilted branches should split into a pair associated with two teachers and a separate branch for the third. The surviving exchange symmetry forces the first two branches to remain equivalent.
+
+Why do we maximize $H$? Let us add one committee of strength $b$ to the unaligned state. Gaussian Hermite orthogonality gives
+\begin{equation}
+    \mathbb E_{\mathbf x}[\psi_3(\mathbf e_\ell^\top \mathbf x)\psi_3(\mathbf u^\top \mathbf x)] = (\mathbf e_\ell^\top \mathbf u)^3,
+\end{equation}
+and \begin{equation}
+    \mathbb E_{\mathbf x}[\psi_3(\mathbf u^\top \mathbf x)^2] = 1.
+\end{equation}
+Consequently, 
+\begin{equation}
+    F(b, \mathbf u) - F(0) = \lambda b - b \mathbb E_{\mathbf x}[f_*(\mathbf x)\psi_3(\mathbf u^\top \mathbf x)] + b^2/2 = b[\lambda - BH_\delta(\mathbf u)] + b^2/2,
+\end{equation}
+where $H_\delta(\mathbf u) = \sum_{\ell=1}^3(\mathbf e_\ell^\top \mathbf u)^3$. We fix $\mathbf u$ and differentiate w.r.t $b$,
+\begin{equation}
+    \frac{\partial F}{\partial b} = \lambda - BH_\delta(\mathbf u) + b.
+\end{equation}
+So 
+\begin{equation}
+   b_*(\mathbf u) = [BH_\delta(\mathbf u) - \lambda]_+ .
+\end{equation}
+And the optimized cost reduction is 
+\begin{equation}
+    \Delta F_*(\mathbf u) = -\frac 12 [BH_\delta (\mathbf u) - \lambda]_+^2.
+\end{equation}
+This identifies two things:
+\begin{enumerate}
+    \item onset occurs when $B\max_{\mathbf u}\, H_\delta(\mathbf u) = \lambda.$
+    \item Direction selection asks which $\mathbf u$ maximizes $H_\delta$.
+\end{enumerate}
+A crossing between two maximizing directions can occur independently of whether the chosen $B/\lambda$ has already produced a population. Now, since the deformation is specified through the overlaps, we can use the teacher overlaps as coordinates. Define
+\begin{equation}
+    h_\ell = \mathbf e_\ell^\top \mathbf u.
+\end{equation}
+These are the committee direction's alignments with the three teachers. They differ from the microscopic neuron overlaps by the projection factor $r_c$.
+
+Write $E = (\mathbf e_1, \mathbf e_2, \mathbf e_3)$. Since $\mathbf u$ lies in the teacher span,
+\begin{equation}
+    \mathbf h = E^\top \mathbf u,\quad \mathbf u = EG^{-1}\mathbf h
+\end{equation}
+Therefore $\|\mathbf u\|^2 = \mathbf h^\top G^{-1}\mathbf h$ and our optimization becomes
+\begin{equation}
+    \max_{\mathbf h} h_1^3 +h_2^3 + h_3^3 \text{ subject to } \mathbf h^\top G^{-1}\mathbf h = 1.
+\end{equation}
+The objective now has a fixed form, changing the teacher geometry changes the constraint ellipsoid.
+
+Introduce a Lagrange multiplier $\Lambda$
+\begin{equation}
+    \mathcal L = \sum_\ell h_\ell^3 - \Lambda(\mathbf h^\top G^{-1}\mathbf h - 1).
+\end{equation}
+Stationarity gives us:
+\begin
+
 
 \end{document}
