@@ -377,7 +377,7 @@ $R=1$ is the $x = y$ symmetric case, but we're interested in the asymmetric one,
     0 &= \omega R^2 - (1-\omega)R + 2\omega \\
     \implies
     \omega &= \frac{R}{R^2 + R + 2}
-\end{align*}
+\end{align}
 This equation will be satisfied exactly when the global maximum of $H$ is asymmetric.
 
 Recall that for the symmetric case, $H_\text{sym}^2 = 3^2c^6 = 1/3 \times (1+2\omega)^3$, so
@@ -442,5 +442,216 @@ So the max is at $R = 2^{1/2}$, and
 So for correlations above $\omega_\text{spin}$, the shared feature is global free energy minimum, and the only local minimum. At $\omega_c = 2^{1/3}-1$, the asymmetric solution becomes a local minimum, but the shared feature is still global minimum.
 Then between $\omega_c$ and $\omega = 1/4$, the symmetric solution remains locally-stable, but the asymmetric solution is the global minimum.
 And below $\omega = 1/4$, the symmetric solution loses local stability, and the asymmetric solution is the only stable one.
+
+\section{Spherical Harmonics for Any Number of Cubic Features}
+\label{sec:cubic-spherical-harmonics}
+
+The angular structure of $H$ in the three-feature calculation has a general explanation.
+For $k$ unit teacher directions, the same Hermite overlap identity gives
+\begin{align*}
+    f_*(\mathbf x) &= B\sum_{\ell=1}^k \psi_3(\mathbf e_\ell^\top\mathbf x), \\
+    \mathbb E_{\mathbf x}\left[f_*(\mathbf x)\psi_3(\mathbf u^\top\mathbf x)\right]
+    &= B H(\mathbf u),
+    \qquad H(\mathbf u) = \sum_{\ell=1}^k (\mathbf e_\ell^\top\mathbf u)^3.
+\end{align*}
+Here, $\mathbf u$ is a unit direction in the teacher span $\mathcal V$.
+Thus, adding a committee to the unaligned state still changes the cost by
+\begin{align*}
+    F(b,\mathbf u)-F(0) = b[\lambda-BH(\mathbf u)]+\frac{b^2}{2}.
+\end{align*}
+We now allow arbitrary correlations between the teacher directions, rather than requiring all pairwise overlaps to equal $\omega$.
+Let $m=\dim\mathcal V$ and use orthonormal coordinates in this span.
+The angular variable then lies on $S^{m-1}$; for linearly independent teachers, $m=k$.
+This distinction matters because the raw teacher overlaps describe an ellipsoid when the teachers are correlated, not a Euclidean unit sphere.
+
+A generalized spherical harmonic of degree $j$ is the restriction to the unit sphere of a homogeneous degree-$j$ polynomial whose Euclidean Laplacian vanishes.
+We will show that $H$ contains only degrees $1$ and $3$.
+Write these two parts as $H^{(1)}$ and $H^{(3)}$, to distinguish them from the Hermite polynomial $H_3$ in the definition of $\psi_3$.
+
+To find the decomposition, first extend $H$ off the sphere:
+\begin{align*}
+    P(\mathbf z) = \sum_{\ell=1}^k (\mathbf e_\ell^\top\mathbf z)^3,
+    \qquad \mathbf v = \sum_{\ell=1}^k \mathbf e_\ell,
+    \qquad \mathbf z\in\mathcal V.
+\end{align*}
+This polynomial is homogeneous of degree three, but it is generally not harmonic.
+Since every teacher direction has unit norm,
+\begin{align*}
+    \Delta_{\mathbf z}(\mathbf e_\ell^\top\mathbf z)^3
+    &= 6\|\mathbf e_\ell\|^2(\mathbf e_\ell^\top\mathbf z)
+    = 6\mathbf e_\ell^\top\mathbf z, \\
+    \Delta_{\mathbf z}P(\mathbf z) &= 6\mathbf v^\top\mathbf z.
+\end{align*}
+Here $\Delta_{\mathbf z}$ denotes the Laplacian in the $m$ orthonormal coordinates of $\mathcal V$, not the sample-scaling parameter $\Delta$.
+The term we need to subtract follows from the product rule:
+\begin{align*}
+    \Delta_{\mathbf z}\left(\|\mathbf z\|^2\mathbf v^\top\mathbf z\right)
+    &= 2m\mathbf v^\top\mathbf z+4\mathbf v^\top\mathbf z \\
+    &= 2(m+2)\mathbf v^\top\mathbf z.
+\end{align*}
+Therefore, the polynomials
+\begin{align*}
+    Q_1(\mathbf z) &= \frac{3}{m+2}\mathbf v^\top\mathbf z, \\
+    Q_3(\mathbf z) &= P(\mathbf z)-\|\mathbf z\|^2Q_1(\mathbf z)
+\end{align*}
+are homogeneous of degrees one and three, respectively, and both have zero Laplacian.
+Restricting to $\|\mathbf u\|=1$ gives the desired decomposition:
+\begin{align}
+    H(\mathbf u) &= H^{(1)}(\mathbf u)+H^{(3)}(\mathbf u),
+    \label{eq:H-harmonic-decomposition} \\
+    H^{(1)}(\mathbf u) &= \frac{3}{m+2}\mathbf v^\top\mathbf u,
+    \label{eq:H-degree-one} \\
+    H^{(3)}(\mathbf u)
+    &= \sum_{\ell=1}^k\left[(\mathbf e_\ell^\top\mathbf u)^3
+    -\frac{3}{m+2}\mathbf e_\ell^\top\mathbf u\right].
+    \label{eq:H-degree-three}
+\end{align}
+For $m\geq2$, these are spherical harmonics of degrees one and three on $S^{m-1}$.
+Equivalently, expanding $H$ in any complete spherical-harmonic basis produces coefficients only at these two degrees.
+The decomposition is exact, regardless of the correlations or the number of teachers.
+If the span is one-dimensional, the sphere consists of just two points and $P(\mathbf z)=\|\mathbf z\|^2Q_1(\mathbf z)$, so $Q_3$ vanishes.
+
+We can also express the answer using harmonics centered on each teacher direction.
+For $m\geq2$, define
+\begin{align*}
+    Z_1^{(m)}(t)=t,
+    \qquad Z_3^{(m)}(t)=\frac{(m+2)t^3-3t}{m-1}.
+\end{align*}
+The functions $Z_j^{(m)}(\mathbf e_\ell^\top\mathbf u)$ are zonal spherical harmonics: they depend only on the angle from $\mathbf e_\ell$.
+Their normalization is $Z_j^{(m)}(1)=1$.
+For $m>2$, they are the normalized Gegenbauer polynomials with parameter $(m-2)/2$; for $m=2$, they satisfy $Z_j^{(2)}(\cos\theta)=\cos(j\theta)$ for $j=1,3$.
+Rearranging their definitions gives
+\begin{align}
+    H(\mathbf u)
+    = \frac{3}{m+2}\sum_{\ell=1}^k Z_1^{(m)}(\mathbf e_\ell^\top\mathbf u)
+    +\frac{m-1}{m+2}\sum_{\ell=1}^k Z_3^{(m)}(\mathbf e_\ell^\top\mathbf u).
+    \label{eq:H-zonal-harmonics}
+\end{align}
+
+For the three-feature geometry above, $m=3$ when $\omega<1$, and $\mathbf v=3ce_0$.
+The degree-one part is therefore $H^{(1)}(t,\theta)=9ct/5$.
+Using $c^2+s^2=1$, equation \eqref{eq:three-feature-H} can be rewritten as
+\begin{align*}
+    H(t,\theta)
+    &= \frac{9c}{5}t
+    +\frac{3c}{5}(5c^2-3)P_3(t)
+    +\frac{3}{4}s^3(1-t^2)^{3/2}\cos(3\theta), \\
+    P_3(t)&=\frac{5t^3-3t}{2}.
+\end{align*}
+Here $P_3$ is the third Legendre polynomial.
+The first term is a degree-one spherical harmonic, while the last two are degree-three spherical harmonics.
+Thus, the $\cos(3\theta)$ term found earlier is one part of the full degree-three angular dependence.
+
+The same proof also allows unequal feature strengths: replacing each summand in $H$ by $\eta_\ell(\mathbf e_\ell^\top\mathbf u)^3$ replaces $\mathbf v$ by $\sum_\ell\eta_\ell\mathbf e_\ell$ and weights each summand in \eqref{eq:H-degree-three} by $\eta_\ell$.
+The degree-one component vanishes exactly when this weighted sum of directions is zero.
+Although the target consists of cubic Hermite features in the Gaussian input, its overlap with a candidate committee generally contains both degree-one and degree-three spherical harmonics as a function of the committee direction.
+
+\appendix
+\section{Generalized Spherical Harmonics}
+\label{app:generalized-spherical-harmonics}
+
+Ordinary spherical harmonics describe angular dependence on $S^2$, the unit sphere in $\R^3$.
+Here, ``generalized'' means that we allow the ambient space to be $\R^m$ and the sphere to be
+\begin{align*}
+    S^{m-1}=\{\mathbf u\in\R^m:\|\mathbf u\|=1\}.
+\end{align*}
+These functions are also called hyperspherical harmonics.
+They play the same role as the familiar $Y_{\ell q}(\theta,\phi)$: they separate angular dependence into orthogonal modes of increasing degree.
+We use $m$ for the dimension and $q$ for a mode label, so $m$ is not the magnetic quantum number of the usual three-dimensional notation.
+In our problem, $m=\dim\mathcal V$, the dimension of the teacher span, rather than the input dimension $N$.
+We assume $m\geq2$ throughout this appendix.
+
+\subsection{From harmonic polynomials to angular modes}
+One way to recognize an ordinary spherical harmonic is to multiply it by the appropriate radial power: $r^\ell Y_{\ell q}$ is a homogeneous harmonic polynomial in three Cartesian coordinates.
+The same construction works in any dimension.
+Let $Q_\ell$ be a polynomial satisfying
+\begin{align*}
+    Q_\ell(r\mathbf u)=r^\ell Q_\ell(\mathbf u),
+    \qquad \Delta_{\mathbf z}Q_\ell(\mathbf z)=0.
+\end{align*}
+The first condition says that every monomial has total degree $\ell$; the second says that the polynomial is harmonic.
+Its restriction $Y(\mathbf u)=Q_\ell(\mathbf u)$ to $S^{m-1}$ is a generalized spherical harmonic of degree $\ell$.
+The polynomial $Q_\ell$ contains both radial and angular dependence, while $Y$ contains only the angular part.
+
+To connect this definition to the familiar angular eigenvalue equation, write $\mathbf z=r\mathbf u$.
+The Euclidean Laplacian separates as
+\begin{align*}
+    \Delta_{\mathbf z}
+    =\frac{\partial^2}{\partial r^2}
+    +\frac{m-1}{r}\frac{\partial}{\partial r}
+    +\frac{1}{r^2}\Delta_{S^{m-1}},
+\end{align*}
+where $\Delta_{S^{m-1}}$ is the angular Laplacian, or Laplace--Beltrami operator, on the unit sphere.
+Applying it to $Q_\ell(r\mathbf u)=r^\ell Y(\mathbf u)$ gives
+\begin{align*}
+    0=\Delta_{\mathbf z}Q_\ell
+    =r^{\ell-2}\left[\ell(\ell+m-2)Y+\Delta_{S^{m-1}}Y\right].
+\end{align*}
+Thus,
+\begin{align}
+    -\Delta_{S^{m-1}}Y=\ell(\ell+m-2)Y.
+    \label{eq:appendix-harmonic-eigenvalue}
+\end{align}
+For $m=3$, this is exactly the usual eigenvalue $\ell(\ell+1)$.
+For $m=2$, the sphere is a circle, the angular Laplacian is $\partial_\theta^2$, and the positive-degree modes are $\cos(\ell\theta)$ and $\sin(\ell\theta)$.
+
+\subsection{Orthogonality and the number of modes}
+As in three dimensions, the degree does not specify a unique harmonic.
+The dimension of the degree-$\ell$ harmonic space is
+\begin{align*}
+    d_{m,\ell}
+    =\binom{m+\ell-1}{\ell}-\binom{m+\ell-3}{\ell-2},
+\end{align*}
+where the second term is taken to be zero for $\ell<2$.
+This gives $d_{3,\ell}=2\ell+1$, the usual number of magnetic modes.
+On the circle, there is one constant mode and two modes at each positive degree.
+We can choose a real orthonormal basis $Y_{\ell q}$, with $q=1,\ldots,d_{m,\ell}$, such that
+\begin{align*}
+    \int_{S^{m-1}}Y_{\ell q}(\mathbf u)Y_{\ell' q'}(\mathbf u)\,d\Omega(\mathbf u)
+    =\delta_{\ell\ell'}\delta_{qq'}.
+\end{align*}
+Here $d\Omega$ is the usual surface-area measure.
+Different degrees are orthogonal because the angular Laplacian is self-adjoint and their eigenvalues in \eqref{eq:appendix-harmonic-eigenvalue} are distinct.
+Together, these modes form a complete basis for square-integrable functions on the sphere, just as ordinary spherical harmonics do on $S^2$.
+
+\subsection{Zonal harmonics and Gegenbauer polynomials}
+For our overlap function, a useful harmonic is one centered on a unit direction $\mathbf e$ and depending only on $t=\mathbf e^\top\mathbf u$, the cosine of the angle from that direction.
+Such a function is called a zonal harmonic; on $S^2$, the familiar example is $P_\ell(\cos\theta)$ with the polar axis along $\mathbf e$.
+For a function $Z(t)$, the angular eigenvalue equation becomes
+\begin{align*}
+    (1-t^2)Z''(t)-(m-1)tZ'(t)+\ell(\ell+m-2)Z(t)=0.
+\end{align*}
+For $m>2$, its degree-$\ell$ polynomial solution, normalized at $t=1$, is
+\begin{align*}
+    Z_\ell^{(m)}(t)
+    =\frac{C_\ell^{(\nu)}(t)}{C_\ell^{(\nu)}(1)},
+    \qquad \nu=\frac{m-2}{2},
+\end{align*}
+where $C_\ell^{(\nu)}$ is a Gegenbauer polynomial.
+Thus Gegenbauer polynomials replace Legendre polynomials when the dimension changes.
+At $m=3$, $\nu=1/2$ and $Z_\ell^{(3)}=P_\ell$.
+At $m=2$, we instead use $Z_\ell^{(2)}(\cos\theta)=\cos(\ell\theta)$, avoiding the degenerate Gegenbauer normalization at $\nu=0$.
+In particular,
+\begin{align*}
+    Z_1^{(m)}(t)=t,
+    \qquad Z_3^{(m)}(t)=\frac{(m+2)t^3-3t}{m-1},
+\end{align*}
+which are the functions used in equation \eqref{eq:H-zonal-harmonics}.
+A zonal harmonic about a chosen axis is a particular linear combination of the degree-$\ell$ basis functions, rather than the entire degree-$\ell$ space.
+
+\subsection{Why a cubic has two harmonic degrees}
+Polynomial degree and angular harmonic degree need not coincide.
+For example, if $Q_1$ is linear, then $\|\mathbf z\|^2Q_1(\mathbf z)$ is a homogeneous cubic, but on the unit sphere it reduces to the degree-one harmonic $Q_1(\mathbf u)$.
+More generally, a homogeneous polynomial of degree $p$ has a unique decomposition
+\begin{align*}
+    P_p(\mathbf z)
+    =\sum_{j=0}^{\lfloor p/2\rfloor}\|\mathbf z\|^{2j}Q_{p-2j}(\mathbf z),
+\end{align*}
+where each $Q_{p-2j}$ is homogeneous and harmonic of the indicated degree.
+Restricting to the sphere removes the radial factors, leaving angular degrees $p,p-2,\ldots$.
+For $p=3$, this is precisely $P_3=Q_3+\|\mathbf z\|^2Q_1$, whose explicit construction appears in Section~\ref{sec:cubic-spherical-harmonics}.
+This explains why cubic teacher features lead to degrees one and three in $H$, even when there are many features or their directions are correlated.
+
+For further background, see Frye and Efthimiou, \href{https://arxiv.org/abs/1205.3548}{\textit{Spherical Harmonics in $p$ Dimensions}}, especially Chapter~4, and the \href{https://dlmf.nist.gov/18.38}{NIST discussion of zonal spherical harmonics}.
 
 \end{document}
