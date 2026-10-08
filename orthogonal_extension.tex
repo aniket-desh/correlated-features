@@ -1,0 +1,813 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,array}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\ip}[2]{\langle #1,#2\rangle}
+\newcommand{\norm}[1]{\lVert #1\rVert}
+\newcommand{\TV}{\mathrm{TV}}
+\newcommand{\on}{\mathrm{on}}
+\newcommand{\exit}{\mathrm{exit}}
+\newcommand{\loc}{\mathrm{loc}}
+\newcommand{\He}{\mathrm{He}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\title{Correlated Features Beyond Hermite Polynomials\\
+\large An exact Gegenbauer calculation, a Legendre exception,\\and implications for neural-network students}
+\author{Research note for the Correlated Features project}
+\date{October 8, 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We redo the feature-overlap, recruitment, and shared-population stability
+calculations with Gegenbauer ridge functions on uniformly distributed
+spherical inputs. At the level of the fixed-penalty population objective,
+the two-teacher Hermite picture survives in every ambient dimension
+$D\geq4$, with explicit modified thresholds and an all-direction
+optimality certificate. In $D=3$, the functions are Legendre polynomials:
+an additional regime of directions outside the teacher plane intervenes,
+and the shared state loses optimality before its in-plane splitting
+instability. On the circle, a single Fourier frequency needs no splitting
+at all. We also solve a Gaussian linear--cubic mixture and give an exact
+obstruction to learning cubic teachers with bias-free ReLU students.
+The overlap and optimization results below are exact. Transferring the
+microscopic Bayesian posterior, its background integration, and its neuron
+counts to these new models remains a separate problem.
+\end{abstract}
+
+\section{What is being changed, and what is being proved}
+
+The source paper's Appendix E and the correlated-features notes reduce the
+cubic problem to
+\begin{equation}\label{eq:original}
+ F=\lambda\sum_j b_j+\frac12\E(f_*-f_C)^2,
+ \qquad f_C=\sum_j b_j\psi_3(u_j^\top X),\quad b_j\geq0,
+ \qquad \psi_3(z)=\frac{z^3-3z}{\sqrt6}.
+\end{equation}
+Here $X$ is Gaussian, unit directions have overlap kernel $q^3$, and
+$\lambda$ incorporates the alignment cost and the fixed effective data
+force. The present note asks which conclusions follow from this kernel,
+and which follow from the more general fit-versus-population-cost structure.
+
+We hold the form of the population penalty fixed while changing the data
+measure and the normalized feature family. This gives an exact comparison
+of the reduced variational models. It does \emph{not} assert that the original
+Bayesian network induces the same penalty at finite $D$. Section~\ref{sec:micro}
+rederives the relevant geometric quantities and explains that limitation.
+All comparisons of signal use $\beta/\lambda$ within the specified model.
+
+Two dimensions must be distinguished. $D$ is the ambient input dimension;
+$m$ is the dimension of the teacher span. The earlier harmonic decomposition
+of the Hermite overlap on $S^{m-1}$ did not change the input law. Here the
+input law itself changes, and the new overlap kernel depends on $D$, even
+when there are only two teachers and $m=2$.
+
+\paragraph{Why orthogonality is not enough.}
+For a scalar marginal law $\nu$, orthogonality only gives
+$\E_\nu[p_k(Z)p_l(Z)]=\delta_{kl}$. It does not determine
+$\E[p_k(u^\top X)p_l(v^\top X)]$ for different directions. The Gaussian
+Hermites have the stronger identities
+\begin{equation}\label{eq:hermite}
+ \E[\psi_k(u^\top X)\psi_l(v^\top X)]=\delta_{kl}(u^\top v)^k,
+ \qquad
+ \E_Z\psi_k(rz+\sqrt{1-r^2}Z)=r^k\psi_k(z).
+\end{equation}
+The second identity is what makes a partially aligned group a rescaled copy
+of the same ridge function. Both identities need attention when the model
+is changed. Legendre polynomials are not orthogonal under a Gaussian law.
+
+\section{The new orthogonal family and its exact overlap}
+
+Let $S$ be uniform on the unit sphere $S^{D-1}\subset\R^D$, with normalized
+probability measure, and take $D\geq3$. The marginal $t=u^\top S$ has density
+proportional to $(1-t^2)^{(D-3)/2}$ on $[-1,1]$. Define
+\begin{equation}
+ Z_l^{(D)}(t)=\frac{C_l^{((D-2)/2)}(t)}{C_l^{((D-2)/2)}(1)},
+ \quad h_{l,D}=\binom{D+l-1}{l}-\binom{D+l-3}{l-2},
+ \quad \phi_{l,u}(S)=\sqrt{h_{l,D}}\,Z_l^{(D)}(u^\top S),
+\end{equation}
+where the second binomial is zero for $l<2$. These are unit-variance
+zonal spherical harmonics for $l\geq1$.
+
+\begin{proposition}[Rotated orthogonality]\label{prop:addition}
+For unit $u,v$,
+\begin{equation}\label{eq:addition}
+ \E[\phi_{l,u}(S)\phi_{k,v}(S)]
+   =\delta_{lk}Z_l^{(D)}(u^\top v).
+\end{equation}
+In particular, for cubic features,
+\begin{equation}\label{eq:kernel}
+ K_D(q)=Z_3^{(D)}(q)=a_Dq^3-b_Dq,
+ \qquad a_D=\frac{D+2}{D-1},\quad b_D=\frac3{D-1},
+ \qquad h_{3,D}=\frac{D(D-1)(D+4)}6.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Choose a real orthonormal degree-$l$ harmonic basis $Y_{lj}$ for normalized
+spherical measure. The addition theorem gives
+$\sum_{j=1}^{h_{l,D}}Y_{lj}(u)Y_{lj}(s)=h_{l,D}Z_l^{(D)}(u^\top s)$.
+Thus $\phi_{l,u}=h_{l,D}^{-1/2}\sum_jY_{lj}(u)Y_{lj}$.
+Taking inner products proves the assertion; different harmonic degrees
+are orthogonal. The cubic expression also follows directly from
+$\E S_1^2=1/D$, $\E S_1^4=3/[D(D+2)]$, and the sixth moments.
+\end{proof}
+
+The addition theorem and Gegenbauer normalization are standard
+\cite{dlmf,frye}; the phase calculations below are derived here.
+At $D=3$, $K_3=P_3=(5q^3-3q)/2$ and
+$\phi_{3,u}=\sqrt7 P_3(u^\top S)$. The \emph{direction overlap} $\omega$
+and the \emph{feature correlation} $K_D(\omega)$ are different quantities.
+The latter can be negative even when $\omega>0$.
+
+\section{Population cost and a global residual test}
+
+For a normalized feature dictionary $\phi_u$ and an arbitrary square
+integrable target, define the student and objective by
+\begin{equation}\label{eq:measure}
+ f_\mu=\int\phi_u\,d\mu(u),\qquad
+ F(\mu)=\lambda\norm{\mu}_{\TV}+\tfrac12\norm{f_*-f_\mu}_{L^2}^2.
+\end{equation}
+This is also an infinite-width, two-layer ridge network with an $\ell_1$
+penalty on output weights; the directions are optimized, not held fixed.
+For odd features, $\phi_{-u}=-\phi_u$, so signed weights can be absorbed
+into directions and $\norm\mu_\TV$ becomes total nonnegative mass.
+This is the variation-norm formulation studied for broader neural-network
+families in \cite{bach}.
+
+For $f_*=\beta\sum_{i=1}^k\phi_{e_i}$ with a rotational kernel $K$,
+\begin{equation}\label{eq:Fexpand}
+ F=\mathrm{constant}+\lambda\sum_j b_j
+ -\beta\sum_jb_j H_K(u_j)
+ +\tfrac12\sum_{j,l}b_jb_l K(u_j^\top u_l),
+ \qquad H_K(u)=\sum_iK(e_i^\top u).
+\end{equation}
+Thus every teacher--student and student--student interaction must use the
+new kernel, rather than changing the target overlap alone.
+
+\begin{proposition}[Global certificate]\label{prop:certificate}
+Let $R=f_*-f_\mu$. A nonnegative representation for an odd dictionary
+minimizes \eqref{eq:measure} if and only if
+\begin{equation}\label{eq:certificate}
+ \ip{R}{\phi_u}\leq\lambda\quad\text{for all unit }u,
+ \qquad \ip{R}{\phi_u}=\lambda\quad\mu\text{-almost everywhere}.
+\end{equation}
+Equivalently, $|\ip{R}{\phi_u}|\leq\lambda$ with sign-correct contact
+equalities for a signed measure. Recruitment begins at
+\begin{equation}\label{eq:onset}
+ \beta_\on=\frac\lambda{\max_u H_K(u)}
+\end{equation}
+when the maximum is positive.
+\end{proposition}
+\begin{proof}
+Adding a small mass $\varepsilon$ at $u$ changes the objective to first
+order by $\varepsilon(\lambda-\ip R{\phi_u})$. Removing occupied mass
+gives the contact equality. Conversely, for any nonnegative competitor
+$\nu$, expanding the difference gives
+\[
+ F(\nu)-F(\mu)=\tfrac12\norm{f_\nu-f_\mu}^2
+ +\int(\lambda-\ip R{\phi_u})\,d\nu(u)
+ -\int(\lambda-\ip R{\phi_u})\,d\mu(u)\geq0.
+\]
+Putting $\mu=0$ proves the onset assertion. No orthogonality assumption
+is needed for this argument.
+\end{proof}
+
+\section{Two Gegenbauer teachers: reduction over all directions}
+
+Take $e_1^\top e_2=\omega\in[0,1)$ and define
+\begin{equation}
+ e_{1,2}=ce_+\pm se_-,\qquad
+ c=\sqrt{\frac{1+\omega}{2}},\quad
+ s=\sqrt{\frac{1-\omega}{2}}.
+\end{equation}
+Write a student direction as $u=xe_++ye_-+zv$, where
+$v\perp\operatorname{span}\{e_1,e_2\}$ and $x^2+y^2+z^2=1$.
+All dependence on transverse coordinates is captured by $z^2$.
+With $a=a_D,b=b_D$,
+\begin{equation}\label{eq:Hxy}
+ H_D(x,y)=2cx\{ac^2x^2+3as^2y^2-b\}.
+\end{equation}
+For $x\geq0$, this is increasing in $y^2$. Its largest value at fixed
+$x$ therefore occurs in the teacher plane, $y^2=1-x^2$; its smallest
+occurs at $y=0$. Since changing $u$ to $-u$ changes the sign of $H_D$,
+\emph{both} extrema must be checked for the global positive maximum.
+
+The planar branch is
+\begin{equation}\label{eq:Hplane}
+ H_{\mathrm{pl}}(t)=2ct\{A+a(2\omega-1)t^2\},
+ \quad A=3as^2-b,\quad 0\leq t\leq1.
+\end{equation}
+Its positive maximum occurs at
+\begin{equation}\label{eq:tstar}
+ t_*^2=\frac{3as^2-b}{3a(1-2\omega)}\quad
+ \text{if }\omega<\omega_{\mathrm{pl}},\qquad
+ t_*=1\quad\text{if }\omega\geq\omega_{\mathrm{pl}},
+ \qquad \omega_{\mathrm{pl}}=\frac{D+4}{3(D+2)}.
+\end{equation}
+The competing positive maximum obtained from $x<0,y=0$ is
+\begin{equation}\label{eq:transverse}
+ M_\perp=\frac4{(D-1)\sqrt{D+2}},\qquad
+ x=-\frac1{c\sqrt{D+2}},\quad y=0.
+\end{equation}
+This follows by minimizing $2cx(ac^2x^2-b)$ for $x\geq0$.
+The minimizing value is feasible for every $\omega\in[0,1)$ and $D\geq3$.
+
+\begin{theorem}[Onset in dimensions at least four]\label{thm:onset}
+For $D\geq4$, a global onset maximizer always lies in the teacher plane.
+The critical direction correlation is
+\begin{equation}\label{eq:wc}
+ \boxed{\omega_c(D)=\frac{D+4}{3(D+2)}
+       =\frac13+\frac{2}{3(D+2)}.}
+\end{equation}
+Above it, the maximizing direction is $e_+$. Below it there are the two
+reflected directions $t_*e_+\pm\sqrt{1-t_*^2}e_-$, with $t_*$ given by
+\eqref{eq:tstar}. Their onset is $\lambda/H_{\mathrm{pl}}(t_*)$.
+The two directions merge continuously at $\omega_c(D)$.
+\end{theorem}
+\begin{proof}
+On $[0,1]$, the minimum of $K_D$ is
+$-2/[(D-1)\sqrt{D+2}]=-M_\perp/2$. The planar direction $e_1$ therefore
+has $H_D(e_1)=1+K_D(\omega)\geq1-M_\perp/2>M_\perp$ for $D\geq4$,
+because $(D-1)\sqrt{D+2}>6$. Hence the transverse alternative cannot
+win. Differentiating \eqref{eq:Hplane} proves the remaining claims.
+\end{proof}
+
+Even orthogonal teacher groups no longer decouple exactly. At
+$\omega=0$, the two-teacher onset maximum is
+\begin{equation}\label{eq:orthogonal}
+ M_D(0)=\frac{D}{D-1}\sqrt{\frac D{D+2}}>1
+ \qquad(D\geq3),
+\end{equation}
+whereas either individual teacher direction has overlap one with the
+two-feature target. This follows by substituting $\omega=0$ in
+\eqref{eq:tstar} and \eqref{eq:Hplane}; the Legendre case is also verified
+by Theorem~\ref{thm:legendre}. Its square exceeds one because
+$D^3-(D-1)^2(D+2)=3D-2>0$. Thus $K_D(0)=0$ is insufficient to recover
+the orthogonal-block decoupling proved for Hermite cubic atoms. The
+discrepancy tends to zero at order $D^{-2}$.
+
+\section{A certified shared interval for every $D\geq4$}
+
+On the shared branch $f_C=m\phi_{e_+}$, normalization gives
+\begin{equation}\label{eq:shared}
+ m=[2\beta K_D(c)-\lambda]_+,
+ \qquad \beta_\on=\frac\lambda{2K_D(c)}.
+\end{equation}
+For an occupied shared atom, introduce
+\begin{equation}\label{eq:B}
+ B=\frac{2\beta a c s^2}{\lambda}.
+\end{equation}
+Its normalized residual correlation, using \eqref{eq:shared}, is exactly
+\begin{equation}\label{eq:residual}
+ \frac{\ip R{\phi_u}}\lambda
+  =(a+bB)x^3+3Bxy^2-b(1+B)x.
+\end{equation}
+As in the onset calculation, for $x\geq0$ we check the planar maximum
+and the transverse minimum. On the plane the residual is
+\begin{equation}\label{eq:resplane}
+ p_B(x)=\{a-(3-b)B\}x^3+\{(3-b)B-b\}x,\quad p_B(1)=1.
+\end{equation}
+The local splitting condition is $p_B'(1)=0$, or
+\begin{equation}\label{eq:Bcrit}
+ B_c=\frac{D+1}{2(D-2)}.
+\end{equation}
+For $0\leq B\leq B_c$, $p_B(x)\leq1$ on $[0,1]$:
+its derivative is affine in $x^2$ and can have at most one interior
+minimum of $p_B$ when its initial derivative is negative; if its cubic
+coefficient is negative, its derivative is minimized at $x=1$ and is
+nonnegative. The endpoint values are $0$ and $1$.
+
+The magnitude of the negative transverse minimum is
+\begin{equation}\label{eq:negative}
+ C_D(B)=\frac23 b(1+B)
+    \sqrt{\frac{b(1+B)}{3(a+bB)}}.
+\end{equation}
+It is increasing in $B\geq0$, and at the planar threshold
+\begin{equation}\label{eq:Ccrit}
+ C_D(B_c)=\frac{3\sqrt3}{(D-2)\sqrt{2D+5}}<1
+ \quad(D\geq4).
+\end{equation}
+Thus no out-of-plane atom wins earlier.
+
+\begin{theorem}[Global endpoint of the shared state]\label{thm:exit}
+For $D\geq4$ and $\omega>\omega_c(D)$, the shared solution
+\eqref{eq:shared} is globally optimal over arbitrary numbers of atoms
+and all ambient directions precisely throughout
+\begin{equation}\label{eq:bounds}
+ \boxed{\frac\lambda{2K_D(c)}\leq\beta\leq
+ \beta_\exit=\frac\lambda{4cs^2}\frac{D^2-1}{D^2-4}.}
+\end{equation}
+At the upper endpoint, an in-plane splitting mode becomes marginal;
+for larger $\beta$ the shared solution is not optimal.
+\end{theorem}
+\begin{proof}
+Equations \eqref{eq:resplane}--\eqref{eq:Ccrit} establish the global
+certificate for $B\leq B_c$. Above $B_c$, $p_B'(1)<0$, so
+$p_B(1-\varepsilon)>1$ for small positive $\varepsilon$, violating it.
+Converting $B_c$ to $\beta$ gives \eqref{eq:bounds}. The interval has
+positive length exactly when $\omega>\omega_c(D)$; at equality its
+endpoints coincide.
+\end{proof}
+
+The Hermite limits are $\omega_c\to1/3$, $K_D(c)\to c^3$, and
+$\beta_\exit\to\lambda/(4cs^2)$. The correction to the shared-direction
+correlation threshold is order $D^{-1}$, whereas the displayed multiplicative
+correction to the exit formula at fixed $\omega$ is order $D^{-2}$.
+This theorem establishes the onset and the exact shared-branch endpoint.
+It does not classify all populations beyond that endpoint.
+
+\section{Legendre polynomials: an additional phase at $D=3$}
+
+At $D=3$, the bound \eqref{eq:Ccrit} exceeds one, so extending the preceding
+claim to Legendre polynomials would be incorrect.
+
+\begin{theorem}[Exact Legendre onset]\label{thm:legendre}
+For $\phi_u(S)=\sqrt7 P_3(u^\top S)$ and two equal teachers,
+the global onset directions are as follows, with coexistence at the boundaries:
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Direction correlation & Maximizing directions & Maximum overlap\\
+\midrule
+$0\leq\omega<1/5$ & $t_*e_+\pm\sqrt{1-t_*^2}e_-$ & $H_{\mathrm{pl}}(t_*)$\\
+$1/5<\omega<3/5$ & $-\dfrac{e_+}{\sqrt5c}\pm
+ \sqrt{1-\dfrac1{5c^2}}e_0$ & $2/\sqrt5$\\[5pt]
+$3/5<\omega<1$ & $e_+$ & $2P_3(c)$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Here $e_0$ is normal to the teacher plane and
+\begin{equation}
+ t_*^2=\frac{3-5\omega}{10(1-2\omega)}
+ \quad(0\leq\omega<1/5).
+\end{equation}
+Both correlation-driven changes of onset direction are discontinuous.
+The middle interval has $\beta_\on=\sqrt5\lambda/2$.
+\end{theorem}
+\begin{proof}
+The all-direction reduction above leaves only the positive planar
+maximum and $M_\perp=2/\sqrt5$. The planar stationary branch applies
+until $\omega=7/15$. On that branch, direct factorization gives
+\begin{equation}
+ H_{\mathrm{pl}}(t_*)^2-\frac45
+ =\frac{(\omega-1)(5\omega-1)(25\omega^2+10\omega-11)}
+ {20(2\omega-1)}.
+\end{equation}
+It is positive below $1/5$ and negative between $1/5$ and $7/15$.
+On the shared planar branch,
+\begin{equation}
+ \{2P_3(c)\}^2-\frac45
+ =\frac{(5\omega-3)(5\omega+3)^2}{40},
+\end{equation}
+which changes sign at $3/5$. The competing directions do not coincide
+at either crossing. Formula \eqref{eq:transverse} supplies the middle branch.
+\end{proof}
+
+These intermediate directions have equal \emph{negative} overlaps
+$e_1^\top u=e_2^\top u=-1/\sqrt5$, where $P_3$ is positive.
+They exploit a secondary lobe of the overlap polynomial. The two reflected
+directions cancel dependence that is odd under reflection across the teacher
+plane when used with equal weights. This does not imply that an individual
+student feature is confined to the teacher span.
+
+\begin{theorem}[Legendre shared-branch exit]\label{thm:legendreexit}
+For $\omega>3/5$, the single shared atom is globally optimal for
+\begin{equation}\label{eq:legendreexit}
+ \boxed{\frac\lambda{2P_3(c)}\leq\beta\leq
+        \frac\lambda{5cs^2}.}
+\end{equation}
+It loses optimality through out-of-plane residual contacts
+\begin{equation}
+ u=-\tfrac12 e_+\pm\tfrac{\sqrt3}{2}e_0.
+\end{equation}
+The in-plane local splitting threshold is twice as large,
+$\beta_\loc=2\lambda/(5cs^2)$, and is preempted.
+\end{theorem}
+\begin{proof}
+Here $a=5/2,b=3/2$, $B=5\beta cs^2/\lambda$, and $B_c=2$.
+Equation \eqref{eq:negative} satisfies $C_3(B)=1$ exactly at $B=1$:
+the squared equality is $(B-1)(B+2)^2=0$. At $B=1$, the negative
+minimum of \eqref{eq:residual} has $x=1/2,y=0$ and value $-1$;
+reverse the direction for the positive contacts. For $B\leq1$ the
+planar upper bound and transverse lower bound prove the global certificate.
+For $B>1$ the transverse bound violates it. The interval is nonempty
+exactly when $\omega\geq3/5$.
+\end{proof}
+
+\paragraph{Numerical scale at $\omega=0.8$.}
+With $\lambda=1$, the Hermite interval is approximately
+$[0.5856,2.6352]$, the $D=4$ Gegenbauer interval is
+$[0.6588,3.2940]$, and the Legendre interval is
+$[0.7027,2.1082]$. The Legendre in-plane local calculation alone
+would instead predict an endpoint near $4.2164$.
+
+\section{A many-teacher result: the modified spectral stability test}
+
+The earlier constant-row-sum stability calculation also extends exactly.
+Let $k\geq2$ unit teacher directions have Gram matrix $G$ with
+$G\mathbf1=g\mathbf1$, $g>0$. Define
+\begin{equation}
+ u_0=\frac{\sum_i e_i}{\sqrt{kg}},\qquad
+ c_0=e_i^\top u_0=\sqrt{\frac gk}.
+\end{equation}
+The sum direction is stationary for $H_D(u)=\sum_iK_D(e_i^\top u)$.
+For a unit tangent vector $v\perp u_0$, differentiating along the great
+circle $u(\theta)=u_0\cos\theta+v\sin\theta$ gives
+\begin{equation}\label{eq:manyhessian}
+ \left.\frac{d^2H_D(u(\theta))}{d\theta^2}\right|_0
+ =K_D''(c_0)\sum_i(e_i^\top v)^2-kc_0K_D'(c_0).
+\end{equation}
+The nonzero eigenvalues of $\sum_i e_ie_i^\top$ on this tangent space
+are those of $G$ on $\mathbf1^\perp$; ambient directions outside the
+teacher span contribute eigenvalue zero. Since $K_D''(c_0)=6a_Dc_0>0$,
+strict negative definiteness is equivalent to
+\begin{equation}\label{eq:manystability}
+ \boxed{2\lambda_{\max}\!\left(G\big|_{\mathbf1^\perp}\right)
+       <g-\frac{k}{D+2}.}
+\end{equation}
+Including zero eigenvalues does not change the maximum because $G$ is
+positive semidefinite. If the inequality is reversed, the sum direction
+has a positive-curvature mode and is not a local maximum. At equality,
+higher-order terms are needed. This recovers the Hermite criterion
+$2\lambda_{\max}<g$ as $D\to\infty$ with fixed $k$.
+
+For $k\leq D$ equicorrelated teachers with $0\leq\omega<1$,
+$g=1+(k-1)\omega$ and the transverse Gram eigenvalue is $1-\omega$.
+The strict local stability condition becomes
+\begin{equation}\label{eq:manylocal}
+ \boxed{\omega>\omega_\loc(k,D)
+       =\frac{1+k/(D+2)}{k+1}.}
+\end{equation}
+For $k=2$, this agrees with the planar threshold in
+\eqref{eq:tstar}. It is a global onset threshold for $D\geq4$ by the
+earlier theorem, but not for $D=3$. For $k\geq3$, we have proved a
+local stability boundary, not a global coexistence boundary. This is
+the same distinction that mattered in the recent many-feature Hermite
+calculation, where competing local maxima can exchange dominance before
+either loses stability.
+
+\section{The circle: orthogonal Fourier modes with no splitting}
+
+For a second, nonpolynomial comparison, let $\varphi$ be uniform on the
+circle and take the orthonormal Fourier family. A translated degree-$l$
+feature is
+\begin{equation}
+ \phi_{l,\theta}(\varphi)=\sqrt2\cos(l(\varphi-\theta)),\qquad
+ \ip{\phi_{l,\theta}}{\phi_{l,\vartheta}}=\cos(l(\theta-\vartheta)).
+\end{equation}
+Two equal teachers at angles $\pm\alpha$ satisfy the exact identity
+\begin{equation}
+ \beta\{\phi_{l,\alpha}+\phi_{l,-\alpha}\}
+       =2\beta\cos(l\alpha)\phi_{l,0}.
+\end{equation}
+Their sum is already a single dictionary atom times a scalar. Its optimum
+under \eqref{eq:measure} is the same atom with strength
+$[2\beta|\cos(l\alpha)|-\lambda]_+$ and the appropriate sign.
+Indeed $\norm{f_\mu}_{L^2}\leq\norm\mu_\TV$, and this representation
+attains equality, so ordinary radial soft thresholding gives a global
+minimizer. There is no need to split at any signal strength; if
+$\cos(l\alpha)=0$, the target vanishes identically. This is also the
+$D=2$ zonal-harmonic limit. It shows directly why orthogonality alone
+does not enforce the Hermite phase diagram.
+
+\section{What survives from the microscopic derivation}\label{sec:micro}
+
+\subsection{The weight-prior geometry survives}
+Changing the input law does not change an independently specified spherical
+weight prior. For a fixed $m$-dimensional subspace $V$, the projection
+$p=P_Vw$ of a uniform unit weight has density
+\begin{equation}
+ p_V(p)\propto(1-\norm p^2)^{(D-m-2)/2},\quad \norm p<1.
+\end{equation}
+Hence the leading cost per dimension for a fixed nonzero projection
+length $r$ remains
+\begin{equation}
+ J(r)=-\tfrac12\log(1-r^2).
+\end{equation}
+This statement is independent of Hermite polynomials.
+
+\subsection{The finite-dimensional committee output changes}
+Take $D>m$, $w=ru+\sqrt{1-r^2}\,\eta$, with $u\in V$ unit and
+$\eta$ uniform on the unit sphere of $V^\perp$. At fixed input $S$, set
+$z=u^\top S$ and $Q=\norm{P_VS}^2$. Averaging over the transverse weights
+gives, \emph{exactly},
+\begin{align}\label{eq:committee}
+ \E_\eta\phi_{3,w}(S)
+ ={}&r^3\phi_{3,u}(S)\\
+ &+\frac{3\sqrt{h_{3,D}}}{D-1}r(1-r^2)z
+     \frac{m+2-(D+2)Q}{D-m}.\nonumber
+\end{align}
+To verify it, use $\E_\eta(\eta^\top S)^2=(1-Q)/(D-m)$ and vanishing
+odd transverse moments in the cubic polynomial. In contrast to
+\eqref{eq:hermite}, the second term usually does not vanish. Therefore
+the exact finite-$D$ output of these committees is not a single
+$r^3$-rescaled ridge atom, and one cannot simply import the old
+$\lambda\propto\min_rJ(r)/r^3$ as an exact finite-dimensional result.
+For $m=1$, the expression simplifies to
+$K_D(r)\phi_{3,u}$, another check on the formula.
+
+For fixed $m$ and fixed $r$, the correction in \eqref{eq:committee}
+is $O(D^{-1})$ in $L^2$: $Q$ has beta distribution
+$\operatorname{Beta}(m/2,(D-m)/2)$, $z=O_{L^p}(D^{-1/2})$
+for fixed finite $p$, and the displayed factors give the bound.
+With $X=\sqrt D S$, the normalized cubic satisfies
+\begin{equation}
+ \phi_{3,u}(S)=
+ \sqrt{\frac{(D+2)^2(D+4)}{6D^2(D-1)}}
+ \left\{(u^\top X)^3-\frac{3D}{D+2}u^\top X\right\}.
+\end{equation}
+It tends to the normalized Gaussian cubic. Thus the original radius
+optimization and order-$D$ aligned-neuron scaling are consistent leading
+candidates in the same high-dimensional regime, assuming the rest of the
+reduction can be justified. This observation is not a proof of that reduction.
+
+\subsection{What has not been transferred}
+The paper integrates a weak background at width and sample size of order
+$D^2$, and its effective data force may depend on residual variance.
+The corresponding covariance law, determinant/free-energy terms, and any
+self-consistency for $g$ must be derived again for spherical inputs.
+Population risk is not automatically the full sample posterior in this
+joint limit. The finite-$D$ Legendre theorems concern the explicitly defined
+penalized network \eqref{eq:measure}, not order-$D$ committees in a proven
+finite-sample posterior. Likewise, changing the readout prior, readout cap,
+or total norm can change the population cost and its preferred sparsity.
+
+\section{General activations, mixed bases, and a solvable mixture}
+
+\subsection{The exact formulas for a general ridge student}
+Under Gaussian inputs, expand a teacher activation $\tau$ and student
+activation $\sigma$ in normalized Hermites:
+\begin{equation}
+ \tau(z)=\sum_{l\geq0}\alpha_l\psi_l(z),\qquad
+ \sigma(z)=\sum_{l\geq0}\gamma_l\psi_l(z),
+ \qquad \sum_l\alpha_l^2,\ \sum_l\gamma_l^2<\infty.
+\end{equation}
+Then the exact cross-kernel and student kernel are
+\begin{equation}\label{eq:generalK}
+ K_{TS}(q)=\sum_l\alpha_l\gamma_lq^l,
+ \qquad K_{SS}(q)=\sum_l\gamma_l^2q^l.
+\end{equation}
+For $f_*=\beta\sum_i\tau(e_i^\top X)$, the linear term in
+\eqref{eq:Fexpand} uses $\sum_iK_{TS}(e_i^\top u)$, whereas the quadratic
+term uses $K_{SS}$. Orthogonality diagonalizes the bookkeeping; it does not
+make the neuron weights for different degrees independent. For a
+general multivariate teacher, simply use
+$H(u)=\ip{f_*}{\sigma(u^\top X)}$ without a ridge decomposition.
+
+The spherical version of \eqref{eq:generalK} replaces $q^l$ by
+$Z_l^{(D)}(q)$ and uses expansion coefficients in the normalized
+Gegenbauer basis. If teacher and student are written in different
+polynomial bases, first express both in a common basis for the
+\emph{actual input law}. The bases themselves do not determine a learning
+law independently of the measure.
+
+For the microscopic Gaussian committees, transverse averaging gives
+\begin{equation}\label{eq:mixedradius}
+ \E_Z\sigma(rz+\sqrt{1-r^2}Z)=\sum_l\gamma_l r^l\psi_l(z).
+\end{equation}
+Consequently the ratio of generated degrees changes with $r$. The original
+single-radius optimization does not generally reduce to an unchanged
+penalty on copies of $\sigma$; the atomic dictionary must include $r$, or
+the cost must be derived jointly over its output coefficient vector.
+Pairing signs cancels even degrees but does not separate odd degrees
+from one another.
+
+\subsection{An exact mixed linear--cubic phase diagram for onset and sharing}
+For a concrete penalized-network calculation, take the same activation
+for teacher and student,
+\begin{equation}
+ \sigma_\eta(z)=\sqrt\eta\,\psi_1(z)+\sqrt{1-\eta}\,\psi_3(z),
+ \quad 0\leq\eta<1,
+ \qquad K_\eta(q)=\eta q+(1-\eta)q^3.
+\end{equation}
+Here we mean actual unit-direction ridge neurons in
+\eqref{eq:measure}, not the radius-optimized committees of
+\eqref{eq:mixedradius}. Write $a=1-\eta$, $v=\eta$, and $\kappa=3-2\eta$.
+The same cubic calculation gives
+\begin{equation}\label{eq:mixedonset}
+ \omega_c(\eta)=\frac13-\frac{2\eta}{9(1-\eta)}.
+\end{equation}
+For $\omega\geq0$, sharing is preferred at onset whenever
+$\omega>\omega_c(\eta)$; if $\eta\geq3/5$, the shared direction is
+optimal for every nonnegative correlation (with the marginal boundary
+case at $\eta=3/5,\omega=0$). On the shared branch,
+\begin{equation}\label{eq:mixedexit}
+ \beta_\on=\frac\lambda{2K_\eta(c)},\qquad
+ \boxed{\beta_\exit=
+ \frac{\lambda(3-2\eta)}{4(1-\eta)(3+\eta)cs^2}.}
+\end{equation}
+These are global boundaries, not just local tests. To see this, put
+$T=2\beta a cs^2/\lambda$. The shared residual is
+\begin{equation}
+ \frac{\ip R{\sigma_\eta(u^\top X)}}\lambda
+   =(a-vT)x^3+3Txy^2+v(1+T)x.
+\end{equation}
+For $x\geq0$, it is nonnegative at $y=0$, and maximized on the teacher
+plane. There it equals
+$[a-(v+3)T]x^3+[v+(v+3)T]x$, is one at $x=1$, and is bounded above
+by one precisely until $T=\kappa/[2(v+3)]$. The residual certificate
+therefore proves \eqref{eq:mixedexit}. Differentiating the target overlap
+proves \eqref{eq:mixedonset}. In the pure-linear limit $\eta=1$, the
+target is a single linear ridge and no split is needed.
+
+\paragraph{Putting a Legendre polynomial on Gaussian inputs.}
+The unnormalized polynomial satisfies
+\begin{equation}
+ P_3(z)=\frac{5\sqrt6}{2}\psi_3(z)+6\psi_1(z).
+\end{equation}
+Its variance-normalized Gaussian kernel is
+$K(q)=(25/49)q^3+(24/49)q$. Thus the corresponding constant-penalty,
+matched teacher/student onset threshold is $\omega_c=3/25$, not
+$1/3$, and not the spherical Legendre value $3/5$. This is a degree
+mixture under Gaussian inputs, not an alternative Gaussian orthogonal family.
+
+\subsection{Local tests for any smooth normalized matched kernel}
+Let $K(1)=1$, use the same feature family for teachers and students, and
+assume the derivatives below exist. At the shared direction,
+\begin{equation}
+ m=2\beta K(c)-\lambda,
+ \qquad \text{local onset stability: } cK'(c)-s^2K''(c)\geq0.
+\end{equation}
+The reflected-pair ansatz has cost
+\begin{equation}
+ F(m,t)=\lambda m-\beta m H_K(t)
+ +\frac{m^2}{4}\{1+K(2t^2-1)\},
+\end{equation}
+where $H_K(t)=K(ct+s\sqrt{1-t^2})+K(ct-s\sqrt{1-t^2})$.
+When the denominator is positive, its local shared-splitting threshold is
+\begin{equation}\label{eq:generalsplit}
+ \beta_\loc=
+ \frac{\lambda K'(1)}
+ {2\{K(c)K'(1)-cK'(c)+s^2K''(c)\}}.
+\end{equation}
+To derive this, expand in the separation angle $\theta$ with
+$t=\cos\theta$. The coefficient of $\theta^2$ is
+$\beta m[cK'(c)-s^2K''(c)]-m^2K'(1)/2$.
+The Legendre example proves why \eqref{eq:generalsplit} cannot generally
+be promoted to a global phase boundary without the residual test.
+
+\section{More realistic students: a concrete obstruction and a usable route}
+
+\subsection{Bias-free ReLU cannot learn these pure cubic teachers}
+For symmetric Gaussian inputs,
+\begin{equation}
+ \operatorname{ReLU}(z)=\tfrac12z+\tfrac12|z|.
+\end{equation}
+Its odd component is purely linear. Every finite or square-integrable
+infinite linear combination of bias-free ReLU ridges therefore has an
+odd component of degree one; its remaining part is even. A pure cubic
+Hermite teacher is orthogonal to both parts. Consequently,
+\begin{equation}
+ \ip{f_*}{f_{\mathrm{ReLU}}}=0,
+ \qquad \norm{f_*-f_{\mathrm{ReLU}}}^2
+   =\norm{f_*}^2+\norm{f_{\mathrm{ReLU}}}^2.
+\end{equation}
+The population optimum is the zero function, even without a penalty.
+Thus merely replacing the cubic student by a familiar activation need not
+preserve any cubic-learning phase. This obstruction applies to a single
+hidden layer with no hidden biases under the symmetric input measure;
+it is not a claim about general ReLU networks.
+
+Hidden biases remove this particular obstruction. For
+$\sigma_h(z)=\operatorname{ReLU}(z+h)$, its third normalized Hermite
+coefficient is
+\begin{equation}
+ \gamma_3(h)=\E[\sigma_h(Z)\psi_3(Z)]
+       =-\frac{h\,\varphi(h)}{\sqrt6},
+\end{equation}
+where $\varphi$ is the standard Gaussian density. This follows by Gaussian
+integration by parts, or direct one-dimensional integration. For $h\ne0$
+the cubic channel is present, together with other degrees. The feasible
+neuron becomes an atom indexed by $(u,h)$, and its normalization and penalty
+can depend on $h$. Treating only $\gamma_3$ while dropping the other
+generated degrees would miss the fit penalty and interactions.
+
+For matched ReLU teachers and students, an exact Gaussian overlap kernel
+is available as well; for $\sigma(z)=\sqrt2\operatorname{ReLU}(z)$,
+\begin{equation}
+ K(q)=\frac{\sqrt{1-q^2}+(\pi-\arccos q)q}{\pi}.
+\end{equation}
+This is the arc-cosine kernel \cite{cho}. Because ReLU is not odd, signed
+readouts must be retained explicitly, and the nonzero mean channel must
+also be kept or deliberately centered. The general certificate still
+applies; a cubic-only calculation does not.
+
+\subsection{Non-Gaussian and manifold inputs}
+For an arbitrary input law $P_X$, the exact objects are
+\begin{equation}
+ K(u,v)=\E_{P_X}[\sigma(u^\top X)\sigma(v^\top X)],\qquad
+ h(u)=\E_{P_X}[f_*(X)\sigma(u^\top X)].
+\end{equation}
+They may depend on the full directions, not only $u^\top v$.
+Equations \eqref{eq:measure} and \eqref{eq:certificate} remain true, but the
+one-variable reductions need not. With latent manifold inputs $X=g(Z)$,
+one can expand the actual composed neuron $\sigma(u^\top g(Z))$ in an
+orthonormal basis for $Z$ and form these inner products from its coefficients.
+This is exact bookkeeping if the full expansion is retained, not an
+automatic proof of the original Gaussian posterior theory.
+
+\section{What generalizes, and how strongly}
+
+\paragraph{Exact structure.}
+For an explicitly specified linear population penalty and squared loss,
+the residual inequality, onset test, interaction Gram matrix, and
+optimization over measures are independent of Hermite polynomials.
+An ordinary two-layer network with optimized directions is already in this
+framework. The real restriction is the form of its penalty and the tractable
+overlap kernel, not the use of the words teacher and student.
+
+\paragraph{Robustness under small changes.}
+If two normalized matched kernels obey
+$\sup_{q\in[-1,1]}|\widetilde K(q)-K(q)|\leq\varepsilon$, then for
+$k$ equal teachers
+\begin{equation}
+ \sup_u|\widetilde H(u)-H(u)|\leq k\varepsilon.
+\end{equation}
+If a maximizer has a height gap $\delta$ over directions outside a chosen
+neighborhood, that localization is preserved whenever
+$2k\varepsilon<\delta$. Here
+\begin{equation}
+ \sup_{q\in[-1,1]}|K_D(q)-q^3|
+      =\frac{2}{\sqrt3(D-1)}.
+\end{equation}
+This gives a concrete high-dimensional robustness statement for any fixed
+number of teachers. A nondegenerate local maximum persists under small
+$C^2$ perturbations; two such branches crossing transversely give a
+persistent, shifted first-order transition. Degenerate boundaries and
+vanishing gaps require a separate analysis. In particular, the earlier
+all-$k$ Hermite equicorrelation formula is not an exact Gegenbauer formula
+just because the kernels are close.
+
+\paragraph{What is model-dependent.}
+The exact $1/3$ threshold, the assumption that all optimal atoms lie in the
+teacher span, the endpoint of the shared branch, and even the existence of
+a splitting phase depend on the kernel and feasible dictionary. The
+Legendre and Fourier calculations give explicit counterexamples to a claim
+of universality based only on orthogonality. Neuron counts, readout
+saturation, and the distributed-versus-aligned distinction also depend on
+the microscopic prior and asymptotic scaling.
+
+\paragraph{What remains open in this extension.}
+We have not classified the post-exit populations for the spherical model,
+proved its finite-sample Bayesian background integration, or established
+that SGD reaches the population optimum. We also have not redone the
+all-$k$ equicorrelation theorem for Gegenbauer atoms. The present results
+fully resolve two-teacher onset and the shared-state interval, and isolate
+specific places where a broader theory needs new work.
+
+\paragraph{A practical next model.}
+A useful continuation is a two-layer biased-ReLU student on Gaussian
+inputs, with the existing cubic teacher and an explicitly specified weight
+penalty. Evaluate the cross-kernel and student kernel using the full
+Hermite spectrum or accurate quadrature; optimize over direction and bias;
+then certify the resulting populations with the residual inequality. A
+separate finite-width experiment can compare that optimum with trained
+networks. Only after that comparison should one add a non-Gaussian or
+latent-manifold input law, so changes from the activation, optimization,
+and input geometry can be identified separately.
+
+\section{Verification and provenance}
+The accompanying reproducible calculation, \texttt{verify.py}, checks
+the cubic spherical covariance by exact symbolic moments and checks the
+Legendre transition factorizations. It also integrates the Legendre
+covariance by deterministic spherical quadrature and compares the analytic
+onset values with multi-start optimization over the full direction sphere.
+The residual is checked inside, at, and beyond the predicted shared
+endpoint for several dimensions and correlations. Numerical optimization
+is a corroborating check; the global claims follow from the proofs above.
+Across 60 choices of dimension and correlation, analytic onset maxima
+agree with the full-sphere searches to below $10^{-12}$; deterministic
+Legendre covariance quadrature agrees to below $10^{-12}$ as well. The
+Gaussian degree-mixture formulas and the biased-ReLU cubic coefficient
+are checked separately. The source material was read without modification.
+
+\begin{thebibliography}{9}
+\bibitem{sources}
+Project reference documents, \emph{Statistical Physics of Internal
+Representations in Feature Learning}, September 17, 2026, especially
+Appendix E; and \emph{Correlated features and shared neurons}, sections 1--6.
+Also consulted the related chats on correlated features, generalized
+spherical harmonics, and manifold inputs.
+\bibitem{dlmf}
+NIST Digital Library of Mathematical Functions, Section 18.38(ii),
+\href{https://dlmf.nist.gov/18.38}{Zonal Spherical Harmonics}.
+\bibitem{frye}
+C. Frye and C. Efthimiou, \emph{Spherical Harmonics in $p$ Dimensions},
+2012. \href{https://arxiv.org/abs/1205.3548}{arXiv:1205.3548}.
+\bibitem{bach}
+F. Bach, \emph{Breaking the Curse of Dimensionality with Convex Neural
+Networks}, JMLR 18(19), 1--53, 2017.
+\href{https://jmlr.org/papers/v18/14-546.html}{Publisher's article}.
+\bibitem{cho}
+Y. Cho and L. K. Saul, \emph{Kernel Methods for Deep Learning},
+NeurIPS 22, 2009.
+\href{https://papers.nips.cc/paper/2009/file/5751ec3e9a4feab575962e78e006250d-Paper.pdf}{Original paper}.
+\end{thebibliography}
+\end{document}
